@@ -1,10 +1,10 @@
 # ASAS CoC Studio
 
-> A beautiful, modular desktop workspace for **CoC**, built by **ASAS Lab**.
+> A powerful, multi-platform workspace for **CoC** (Clash of Clans / Community / Creators), built by **ASAS Lab**.
 
-**ASAS CoC Studio** is an extensible desktop application designed to bring the tools, workflows, utilities, and ideas around CoC into one polished workspace.
+**ASAS CoC Studio** is an extensible cross-platform application designed to bring tools, workflows, utilities, and creative ideas into one polished workspace across **Android, Linux, and Windows**.
 
-Built with **Go + Wails + React + TypeScript**, CoC Studio is designed from the ground up to keep growing.
+Built with a robust hybrid architecture utilizing **Go + Wails** for desktop and **Capacitor** for Android, paired with a modern **React + TypeScript + Vite** frontend, CoC Studio is engineered for continuous growth, clean separation of concerns, and rapid feature expansion.
 
 ---
 
@@ -12,15 +12,19 @@ Built with **Go + Wails + React + TypeScript**, CoC Studio is designed from the 
 
 CoC Studio isn't meant to be just another utility.
 
-The goal is to build a **single, powerful workspace** where new tools and workflows can be added without turning the application into an unmaintainable monolith.
+The goal is to build a **single, powerful workspace** where new tools and workflows can be added seamlessly without turning the application into an unmaintainable monolith.
 
-Everything is organized around independent feature modules, allowing CoC Studio to continuously evolve as new ideas are added.
+Everything is organized around independent feature modules and a centralized route registry, allowing CoC Studio to continuously evolve as new ideas are added.
 
 ---
 
-## 🧩 Architecture
+## 🧩 Architecture & Multi-Platform Support
 
-CoC Studio follows a **feature-first architecture**.
+CoC Studio follows a **feature-first architecture** with a centralized route registry (`frontend/src/config/routes.tsx`) and application shell layout (`AppShell`). 
+
+It supports multiple platforms from a unified codebase:
+1. **Desktop (Linux & Windows):** Powered by **Go + Wails**, exposing native Go backend services directly via thin Wails bindings to the React frontend.
+2. **Mobile (Android):** Powered by **Capacitor**, wrapping the web frontend for Android devices with native asset integration and Gradle builds.
 
 ```text
 coc-studio/
@@ -28,46 +32,50 @@ coc-studio/
 ├── cmd/
 │   └── main.go
 │
-├── backend/
+├── backend/                  # Go Backend (Desktop native services)
 │   ├── app/
 │   ├── internal/
+│   │   ├── settings/
+│   │   └── workspace/
 │   ├── repository/
 │   ├── infrastructure/
 │   └── shared/
 │
-├── frontend/
+├── frontend/                 # React + TypeScript Frontend (Shared across Desktop & Android)
+│   ├── android/              # Capacitor Android project wrapper & Gradle build configs
 │   └── src/
 │       ├── app/
-│       │   ├── shell/
-│       │   ├── router/
-│       │   ├── store/
-│       │   └── providers/
+│       │   ├── App.tsx
+│       │   └── shell/
+│       │       └── AppShell.tsx
 │       │
-│       ├── features/
+│       ├── config/
+│       │   └── routes.tsx          # Single source of truth for features & navigation
+│       │
+│       ├── features/               # Isolated feature modules (dashboard, settings, etc.)
 │       │   ├── dashboard/
-│       │   ├── projects/
-│       │   ├── tools/
 │       │   └── settings/
 │       │
-│       ├── shared/
-│       │   ├── components/
-│       │   ├── api/
-│       │   ├── hooks/
-│       │   ├── types/
-│       │   └── utils/
+│       ├── components/
+│       │   └── common/
 │       │
 │       └── styles/
+│           └── globals.css
 │
+├── docs/
+│   └── ARCHITECTURE_GUIDE.md
+│
+├── Makefile                  # Cross-platform build & dev automation tasks
 └── build/
 ```
 
 ### Why feature-first?
 
-A new feature should be able to live mostly inside its own module:
+A new feature lives entirely inside its own module:
 
 ```text
 features/
-└── my-feature/
+└── analytics/
     ├── pages/
     ├── components/
     ├── hooks/
@@ -76,121 +84,99 @@ features/
     └── index.ts
 ```
 
-This keeps the application scalable as the number of tools and pages grows.
+Adding a new feature is as simple as creating the feature folder, writing your page component, and registering it in `frontend/src/config/routes.tsx`. It automatically appears in the sidebar navigation and command search palette (`Cmd/Ctrl + K`)!
 
 ---
 
 ## 🛠️ Tech Stack
 
 | Layer             | Technology                |
-| ----------------- | ------------------------- |
-| Desktop framework | Wails                     |
+|-------------------|---------------------------|
+| Desktop Framework | Wails (Go)                |
+| Mobile Framework  | Capacitor (Android)       |
 | Backend           | Go                        |
 | Frontend          | React                     |
 | Language          | TypeScript                |
-| Build tool        | Vite                      |
+| Build Tool        | Vite                      |
 | Persistence       | SQLite-ready architecture |
-| UI                | Custom component system   |
-| Platform          | Windows / macOS / Linux   |
-
----
-
-## 🚀 Planned Systems
-
-CoC Studio is being designed around several core systems.
-
-* [ ] Theme system
-
-The list will evolve as CoC Studio grows.
+| UI & Icons        | Lucide React & Custom CSS |
+| Platforms         | Linux, Windows, Android   |
 
 ---
 
 ## 🏗️ Development Philosophy
 
-### Keep Wails bindings thin
+### Keep Wails bindings / Native bridges thin
 
 Frontend:
-
 ```text
 React
   ↓
-Feature Service
+Feature Service (Service Layer wrapping Wails Go bindings / Capacitor APIs)
   ↓
-Wails API
+Wails API / Native Bridge
   ↓
-Go Service
+Go Service (Desktop)
   ↓
 Repository / Infrastructure
 ```
 
-Business logic should not be buried inside React components or Wails bindings.
+Business logic should not be buried inside React components or direct platform calls.
 
 ### Keep features isolated
 
-Features should communicate through stable public interfaces rather than importing each other's internal implementation.
+Features communicate through stable public interfaces rather than importing each other's internal implementation.
 
 ### Don't over-engineer early
 
-New infrastructure should be introduced when an actual feature needs it.
-
-The architecture is designed to make growth easy without building a huge framework before the application exists.
+New infrastructure is introduced when an actual feature needs it.
 
 ---
 
-## 📦 Getting Started
+## 📦 Getting Started & Commands
 
 ### Requirements
 
-* Go
-* Node.js
-* npm
-* Wails
+* **Go** (for Desktop Wails backend)
+* **Node.js & npm**
+* **Wails CLI** (`go install github.com/wailsapp/wails/v2/cmd/wails@latest`)
+* **Android Studio / Android SDK** (optional, for Android builds)
 
-### Install frontend dependencies
+### Automation with Makefile
 
+CoC Studio provides a convenient `Makefile` to handle development and cross-platform builds:
+
+#### 1. Install Frontend Dependencies
 ```bash
-cd frontend
-npm install
+make frontend
+# or: cd frontend && npm install
 ```
 
-### Run development
-
+#### 2. Run Desktop Development (Live Reload)
 ```bash
-wails dev
+make dev
+# Runs: wails dev -tags webkit2_41
 ```
 
-### Build
-
-```bash
-wails build
-```
+#### 3. Build Production Binaries & Android App
+* **Linux Build:**
+  ```bash
+  make build-linux
+  ```
+* **Windows Build:**
+  ```bash
+  make build-windows
+  ```
+* **Android Build (Debug APK via Capacitor & Gradle):**
+  ```bash
+  make build-android
+  ```
 
 ---
 
 ## 🗂️ Adding a New Feature
 
-Create a feature module:
-
-```text
-frontend/src/features/example/
-├── pages/
-├── components/
-├── hooks/
-├── services/
-├── types.ts
-└── index.ts
-```
-
-If it requires backend functionality:
-
-```text
-backend/internal/example/
-├── service.go
-├── repository.go
-└── types.go
-```
-
-Expose only the required operations through the application facade.
+Please check [docs/ARCHITECTURE_GUIDE.md](docs/ARCHITECTURE_GUIDE.md) for a comprehensive 3-step guide on adding new pages and features to CoC Studio.
 
 ---
 
@@ -198,23 +184,16 @@ Expose only the required operations through the application facade.
 
 **ASAS CoC Studio**
 
-Short name:
-
-**CoC Studio**
-
-Brand:
-
-**ASAS Lab**
+* Short name: **CoC Studio**
+* Brand: **ASAS Lab**
 
 ---
 
 ## 🧪 Status
 
-> 🚧 Early development
+> 🚧 Active Development
 
-The project is currently establishing the core architecture and application shell.
-
-Expect APIs, UI, and internal architecture to change while the foundation is being developed.
+The core architecture, navigation shell, command palette, dashboard, settings module, and multi-platform support (Android, Linux, Windows) are fully established.
 
 ---
 
@@ -233,3 +212,5 @@ MIT
 ---
 
 **ASAS Lab · Building CoC Studio**
+
+
