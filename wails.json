@@ -2,12 +2,20 @@
   "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "coc-studio",
   "outputfilename": "coc-studio",
+  "icon": "build/appicon.png",
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "ASAS Lab",
+    "email": "ultimateuserman@proton.me"
+  },
+  "info": {
+    "companyName": "ASAS Lab",
+    "productName": "CoC Studio",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright © 2026 ASAS Lab",
+    "comments": "Built with Wails"
   }
 }

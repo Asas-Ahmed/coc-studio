@@ -122,3 +122,34 @@ wailsjs/
 *.zip
 *.tar
 *.tar.gz
+
+# ─────────────────────────────────────
+# Android SDK & Tooling (Local CLI / SDKMAN)
+# ─────────────────────────────────────
+
+# Local Android SDK tools & downloads
+android/Sdk/
+cmdline-tools/
+platforms/
+platform-tools/
+build-tools/
+licenses/
+
+# SDKMAN local environment state
+.sdkman/
+
+# ─────────────────────────────────────
+# Capacitor & Android Build Outputs
+# ─────────────────────────────────────
+
+# Gradle build cache & compiled artifacts
+**/android/.gradle/
+**/android/build/
+**/android/app/build/
+
+# Generated APKs & AAB bundles
+*.apk
+*.aab
+
+# Capacitor local native build configs
+**/android/captmp/
