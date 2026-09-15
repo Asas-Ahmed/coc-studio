@@ -31,14 +31,14 @@ export function DashboardPage() {
           fontWeight: 800,
           letterSpacing: "-0.03em",
           marginBottom: "0.75rem",
-          background: "linear-gradient(135deg, #fff 0%, var(--text-muted) 100%)",
+          background: "linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent"
         }}>
           CoC Studio
         </h1>
         <p style={{ 
-          color: "var(--muted)", 
+          color: "var(--text-muted)", 
           fontSize: "clamp(1rem, 2vw, 1.25rem)", 
           fontWeight: 500,
           letterSpacing: "0.01em" 

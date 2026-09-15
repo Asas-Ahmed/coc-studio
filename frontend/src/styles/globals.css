@@ -286,3 +286,53 @@ button.primary:hover {
 .fade-in {
   animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+  /* Performance Mode: Reduce/Disable animations */
+  :root.reduce-motion {
+    --transition-duration: 0s;
+  }
+  .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+  }
+  .reduce-motion .fade-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Potato Mode Styles */
+  :root.potato-mode {
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-glow: none;
+    filter: none;
+  }
+  .potato-mode * {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .potato-mode .card,
+  .potato-mode .sidebar,
+  .potato-mode .topbar {
+    border-width: 1px !important;
+  }
+
+
+  /* Hyper-Drive Mode Styles */
+  :root.hyper-drive {
+    --shadow-md: 0 6px 20px -2px rgba(99, 102, 241, 0.5);
+    --shadow-lg: 0 20px 50px -10px rgba(99, 102, 241, 0.6);
+    --shadow-glow: 0 0 40px -5px rgba(99, 102, 241, 0.6);
+  }
+  .hyper-drive .card {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  .hyper-drive .card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-glow);
+  }
+

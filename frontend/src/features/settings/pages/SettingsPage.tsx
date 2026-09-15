@@ -19,56 +19,81 @@ export function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [healthStatus, setHealthStatus] = useState<{ ok?: boolean; time?: string } | null>(null);
 
-  const [animations, setAnimations] = useState(() => localStorage.getItem("pref_animations") !== "false");
-  const [compactNav, setCompactNav] = useState(() => localStorage.getItem("pref_compact_nav") === "true");
-  const [analytics, setAnalytics] = useState(() => localStorage.getItem("pref_analytics") !== "false");
+  const [lowGpuMode, setLowGpuMode] = useState(() => localStorage.getItem("pref_reduce_motion") === "true");
 
-  useEffect(() => {
-    Promise.all([
-      settingsService.getSettings(),
-      settingsService.getHealth()
-    ]).then(([s, h]) => {
-      if (s && s.theme) {
-        setTheme(s.theme);
-        applyThemeClass(s.theme);
-      }
-      if (h) {
-        setHealthStatus(h);
-      }
-      setLoading(false);
-    });
-  }, []);
+
+  const [hyperDriveMode, setHyperDriveMode] = useState(() => localStorage.getItem("pref_hyper_drive") === "true");
 
   const applyThemeClass = (selectedTheme: string) => {
     const root = document.documentElement;
     root.classList.remove("theme-light", "theme-dark", "theme-system");
     root.classList.add(`theme-${selectedTheme}`);
+    localStorage.setItem("theme", selectedTheme);
   };
 
   const handleThemeChange = async (newTheme: string) => {
     setTheme(newTheme);
     applyThemeClass(newTheme);
-    localStorage.setItem("theme", newTheme);
     await settingsService.setTheme(newTheme);
     showSavedToast();
   };
 
-  const toggleAnimation = (val: boolean) => {
-    setAnimations(val);
-    localStorage.setItem("pref_animations", String(val));
+  useEffect(() => {
+    const loadData = () => {
+      Promise.all([
+        settingsService.getSettings(),
+        settingsService.getHealth()
+      ]).then(([s, h]) => {
+        const activeTheme = localStorage.getItem("theme") || (s && s.theme) || "system";
+        setTheme(activeTheme);
+        applyThemeClass(activeTheme);
+        if (h) {
+          setHealthStatus(h);
+        }
+        setLoading(false);
+      }).catch((err) => {
+        console.error("Failed to load settings:", err);
+        setLoading(false);
+      });
+    };
+
+    loadData();
+    window.addEventListener("storage", loadData);
+    return () => window.removeEventListener("storage", loadData);
+  }, []);
+
+  const togglePotatoMode = (val: boolean) => {
+    setLowGpuMode(val);
+    localStorage.setItem("pref_reduce_motion", String(val));
+    if (val) {
+      if (hyperDriveMode) {
+        setHyperDriveMode(false);
+        localStorage.setItem("pref_hyper_drive", "false");
+        document.documentElement.classList.remove("hyper-drive");
+      }
+      document.documentElement.classList.add("reduce-motion");
+      document.documentElement.classList.add("potato-mode");
+    } else {
+      document.documentElement.classList.remove("reduce-motion");
+      document.documentElement.classList.remove("potato-mode");
+    }
     showSavedToast();
   };
 
-  const toggleCompactNav = (val: boolean) => {
-    setCompactNav(val);
-    localStorage.setItem("pref_compact_nav", String(val));
-    window.dispatchEvent(new Event("storage"));
-    showSavedToast();
-  };
-
-  const toggleAnalytics = (val: boolean) => {
-    setAnalytics(val);
-    localStorage.setItem("pref_analytics", String(val));
+  const toggleHyperDriveMode = (val: boolean) => {
+    setHyperDriveMode(val);
+    localStorage.setItem("pref_hyper_drive", String(val));
+    if (val) {
+      if (lowGpuMode) {
+        setLowGpuMode(false);
+        localStorage.setItem("pref_reduce_motion", "false");
+        document.documentElement.classList.remove("reduce-motion");
+        document.documentElement.classList.remove("potato-mode");
+      }
+      document.documentElement.classList.add("hyper-drive");
+    } else {
+      document.documentElement.classList.remove("hyper-drive");
+    }
     showSavedToast();
   };
 
@@ -213,22 +238,22 @@ export function SettingsPage() {
             <Layers size={20} />
           </div>
           <div>
-            <h3>Interface & Experience</h3>
-            <p>Customize interactions, animations, and sidebar density.</p>
+            <h3>Visual & Performance Modes</h3>
+            <p>Customize the workspace behavior and visual performance.</p>
           </div>
         </div>
 
         <div className="settings-list">
           <div className="setting-item">
             <div className="setting-info">
-              <strong>Hardware Animations</strong>
-              <span>Enable smooth transitions and micro-interactions.</span>
+              <strong>Potato Mode (Low GPU)</strong>
+              <span>Disable all animations and transitions for performance.</span>
             </div>
             <label className="switch">
               <input
                 type="checkbox"
-                checked={animations}
-                onChange={(e) => toggleAnimation(e.target.checked)}
+                checked={lowGpuMode}
+                onChange={(e) => togglePotatoMode(e.target.checked)}
               />
               <span className="slider"></span>
             </label>
@@ -236,33 +261,19 @@ export function SettingsPage() {
 
           <div className="setting-item">
             <div className="setting-info">
-              <strong>Compact Navigation Bar</strong>
-              <span>Reduce navigation padding for larger workspace view.</span>
+              <strong>Professional Mode (Refined/Cool)</strong>
+              <span>Smooth, balanced visuals for a professional workspace.</span>
             </div>
             <label className="switch">
               <input
                 type="checkbox"
-                checked={compactNav}
-                onChange={(e) => toggleCompactNav(e.target.checked)}
+                checked={hyperDriveMode}
+                onChange={(e) => toggleHyperDriveMode(e.target.checked)}
               />
               <span className="slider"></span>
             </label>
           </div>
 
-          <div className="setting-item">
-            <div className="setting-info">
-              <strong>Telemetry & Diagnostics</strong>
-              <span>Local diagnostic reporting for runtime stability.</span>
-            </div>
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={analytics}
-                onChange={(e) => toggleAnalytics(e.target.checked)}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
         </div>
       </div>
 

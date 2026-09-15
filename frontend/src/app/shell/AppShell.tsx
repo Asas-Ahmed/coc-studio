@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { APP_ROUTES } from "../../config/routes";
+import { settingsService } from "../../features/settings";
 import "./AppShell.css";
 
 
@@ -20,7 +21,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem("sidebar_collapsed") === "true");
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem("theme") || "system");
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    const saved = localStorage.getItem("theme") || "system";
+    document.documentElement.classList.remove("theme-light", "theme-dark", "theme-system");
+    document.documentElement.classList.add(`theme-${saved}`);
+    return saved;
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -41,8 +47,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    applyTheme(currentTheme);
-    
+    const motionPref = localStorage.getItem("pref_reduce_motion");
+    if (motionPref === "true") {
+      document.documentElement.classList.add("reduce-motion");
+      document.documentElement.classList.add("potato-mode");
+    } else {
+      document.documentElement.classList.remove("reduce-motion");
+      document.documentElement.classList.remove("potato-mode");
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -55,7 +68,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [searchOpen, mobileMenuOpen, currentTheme]);
+  }, [searchOpen, mobileMenuOpen]);
 
   // Handle window resize to automatically close mobile menu when expanding screen
   useEffect(() => {
@@ -86,7 +99,22 @@ export function AppShell({ children }: { children: ReactNode }) {
     root.classList.add(`theme-${theme}`);
     localStorage.setItem("theme", theme);
     setCurrentTheme(theme);
+    window.dispatchEvent(new Event("storage"));
   }, []);
+
+  useEffect(() => {
+    const handleStorage = () => {
+      const saved = localStorage.getItem("theme") || "system";
+      if (saved !== currentTheme) {
+        const root = document.documentElement;
+        root.classList.remove("theme-light", "theme-dark", "theme-system");
+        root.classList.add(`theme-${saved}`);
+        setCurrentTheme(saved);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [currentTheme]);
 
   // Build searchable items from APP_ROUTES
   const searchItems = [
@@ -104,8 +132,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       title: "Light Theme",
       category: "Appearance",
       icon: Sparkles,
-      action: () => {
+      action: async () => {
         applyTheme("light");
+        try {
+          await settingsService.setTheme("light");
+        } catch (e) {
+          console.error(e);
+        }
         setSearchOpen(false);
       }
     },
@@ -113,8 +146,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       title: "Dark Theme",
       category: "Appearance",
       icon: Sparkles,
-      action: () => {
+      action: async () => {
         applyTheme("dark");
+        try {
+          await settingsService.setTheme("dark");
+        } catch (e) {
+          console.error(e);
+        }
         setSearchOpen(false);
       }
     },
@@ -122,8 +160,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       title: "System Theme",
       category: "Appearance",
       icon: Sparkles,
-      action: () => {
+      action: async () => {
         applyTheme("system");
+        try {
+          await settingsService.setTheme("system");
+        } catch (e) {
+          console.error(e);
+        }
         setSearchOpen(false);
       }
     }
