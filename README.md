@@ -1,8 +1,8 @@
-# ASAS CoC Studio
+# CoC Studio
 
-> A powerful, multi-platform workspace for **CoC** (Clash of Clans / Community / Creators), built by **ASAS Lab**.
+> A powerful, multi-platform workspace for **CoC** (Clash of Clans / Community / Creators), developed by **ASAS Labs**.
 
-**ASAS CoC Studio** is an extensible cross-platform application designed to bring tools, workflows, utilities, and creative ideas into one polished workspace across **Android, Linux, and Windows**.
+**CoC Studio** is an extensible cross-platform application designed to bring tools, workflows, utilities, and creative ideas into one polished workspace across **Android, Linux, and Windows**.
 
 Built with a robust hybrid architecture utilizing **Go + Wails** for desktop and **Capacitor** for Android, paired with a modern **React + TypeScript + Vite** frontend, CoC Studio is engineered for continuous growth, clean separation of concerns, and rapid feature expansion.
 
@@ -182,10 +182,10 @@ Please check [docs/ARCHITECTURE_GUIDE.md](docs/ARCHITECTURE_GUIDE.md) for a comp
 
 ## 🎨 Product
 
-**ASAS CoC Studio**
+**CoC Studio**
 
 * Short name: **CoC Studio**
-* Brand: **ASAS Lab**
+* Brand: **ASAS Labs**
 
 ---
 
@@ -211,6 +211,6 @@ MIT
 
 ---
 
-**ASAS Lab · Building CoC Studio**
+**ASAS Labs · Building CoC Studio**
 
 
