@@ -3,7 +3,9 @@ import AsasLogo from "../../assets/asas-logo.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Search,
-  Sparkles,
+  Sun,
+  Moon,
+  Monitor,
   Command,
   X,
   ArrowRight,
@@ -131,7 +133,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     {
       title: "Light Theme",
       category: "Appearance",
-      icon: Sparkles,
+      icon: Sun,
       action: async () => {
         applyTheme("light");
         try {
@@ -145,7 +147,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     {
       title: "Dark Theme",
       category: "Appearance",
-      icon: Sparkles,
+      icon: Moon,
       action: async () => {
         applyTheme("dark");
         try {
@@ -159,7 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     {
       title: "System Theme",
       category: "Appearance",
-      icon: Sparkles,
+      icon: Monitor,
       action: async () => {
         applyTheme("system");
         try {
@@ -237,8 +239,26 @@ export function AppShell({ children }: { children: ReactNode }) {
               <kbd>⌘ K</kbd>
             </div>
           </div>
-          <div className="topbar-avatar">
-            <img src={AsasLogo} alt="ASAS Labs Logo" />
+          <div className="topbar-actions">
+            <button 
+              className="icon-button topbar-theme-toggle" 
+              onClick={() => {
+                const next = currentTheme === "dark" ? "light" : "dark";
+                applyTheme(next);
+                settingsService.setTheme(next).catch(console.error);
+              }}
+              aria-label="Toggle theme"
+              title={`Switch to ${currentTheme === "dark" ? "light" : "dark"} mode`}
+            >
+              {currentTheme === "dark" ? (
+                <Sun size={17} className="theme-icon sun" />
+              ) : (
+                <Moon size={17} className="theme-icon moon" />
+              )}
+            </button>
+            <div className="topbar-avatar">
+              <img src={AsasLogo} alt="ASAS Labs Logo" />
+            </div>
           </div>
         </header>
         <section className="content">{children}</section>
