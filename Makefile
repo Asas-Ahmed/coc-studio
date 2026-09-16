@@ -46,3 +46,7 @@ build-android:
 
 zip:
 	git ls-files -co --exclude-standard | zip app.zip -@
+
+zip-ask:
+	@read -p "Enter folder path to zip: " folder; \
+	git ls-files -co --exclude-standard "$$folder" | zip app.zip -@
